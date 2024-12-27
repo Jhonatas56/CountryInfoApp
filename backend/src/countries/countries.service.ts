@@ -1,9 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import axios from 'axios';
 
 @Injectable()
 export class CountriesService {
   private readonly dateNagerApi = 'https://date.nager.at/api/v3';
+  private readonly countriesNowApi =
+    'https://countriesnow.space/api/v0.1/countries';
 
   async getAvailableCountries() {
     try {
@@ -13,6 +15,41 @@ export class CountriesService {
       return response.data;
     } catch (error) {
       throw new Error(`Failed to fetch countries: ${error.message}`);
+    }
+  }
+
+  async getCountryInfo(countryCode: string) {
+    try {
+      const borderResponse = await axios.get(
+        `${this.dateNagerApi}/CountryInfo/${countryCode}`,
+      );
+
+      const borderCountries = borderResponse.data.borders || [];
+
+      const [populationResponse, flagResponse] = await Promise.all([
+        axios.post(`${this.countriesNowApi}/population`, {
+          country: borderResponse.data.commonName,
+        }),
+        axios.post(`${this.countriesNowApi}/flag/images`, {
+          country: borderResponse.data.commonName,
+        }),
+      ]);
+      const populationData =
+        populationResponse.data.data.populationCounts || [];
+
+      const flagUrl = flagResponse.data.data.flag || null;
+
+      return {
+        countryName: borderResponse.data.commonName,
+        borders: borderCountries,
+        population: populationData,
+        flagUrl,
+      };
+    } catch (error) {
+      throw new HttpException(
+        `Failed to fetch country details: ${error.message}`,
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 }
