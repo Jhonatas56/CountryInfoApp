@@ -1,7 +1,7 @@
 "use client";
 
-import { CountryBorders } from "@/app/components/CountryBorders";
-import { PopulationChart } from "@/app/components/PopulationChart";
+import { CountryBorders } from "@/components/CountryBorders";
+import { PopulationChart } from "@/components/PopulationChart";
 import { CountryData } from "@/dtos/country";
 import api from "@/utils/api";
 import Image from "next/image";
