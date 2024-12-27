@@ -69,6 +69,6 @@ You need to have node installed on your machine in order to run the projects cor
    1. /countries/get-available-countries:
        - methods: GET
    2. /countries/get-country-info/:code
-      - methods: GET(public)
+      - methods: GET
       - params: code - String
  
