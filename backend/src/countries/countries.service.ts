@@ -20,18 +20,16 @@ export class CountriesService {
 
   async getCountryInfo(countryCode: string) {
     try {
-      const borderResponse = await axios.get(
+      const countryData = await axios.get(
         `${this.dateNagerApi}/CountryInfo/${countryCode}`,
       );
 
-      const borderCountries = borderResponse.data.borders || [];
-
       const [populationResponse, flagResponse] = await Promise.all([
         axios.post(`${this.countriesNowApi}/population`, {
-          country: borderResponse.data.commonName,
+          country: countryData.data.commonName,
         }),
         axios.post(`${this.countriesNowApi}/flag/images`, {
-          country: borderResponse.data.commonName,
+          country: countryData.data.commonName,
         }),
       ]);
       const populationData =
@@ -40,8 +38,7 @@ export class CountriesService {
       const flagUrl = flagResponse.data.data.flag || null;
 
       return {
-        countryName: borderResponse.data.commonName,
-        borders: borderCountries,
+        ...countryData.data,
         population: populationData,
         flagUrl,
       };
